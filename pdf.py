@@ -1,9 +1,15 @@
 import re
 import sys
+import csv
 
+if len(sys.argv) > 1:
 # open input file
-f = open("1.txt", "r")
-body = f.read()
+    input_file = sys.argv[1]
+    f = open(input_file, "r")
+    body = f.read()
+else:
+    print "usage: %s input_file" % sys.argv[0]
+    sys.exit(1)
 
 # remove KEY: .... source of the report
 body_wo_key = re.sub("KEY:\s+.*?source of the report\.", "", body, flags=re.DOTALL)
@@ -60,7 +66,16 @@ for p in pages:
 
     items.append([suburbs, addresses, types, prices, results, agents])
 
-for i in items:
-    for s,adr,t,p,r,ag in map(None, i[0],i[1],i[2],i[3],i[4],i[5]):
-        print "%s,%s,%s,%s,%s,%s" % (s,adr,t,p,r,ag)
+
+csv_items = [ m for i in items for m in map(None, i[0:6]) ]
+
+# write to csv file
+headers = ["Suburb", "Address", "Type", "Price", "Result", "Agent"]
+with open(input_file+".csv","w") as f:
+    writer = csv.writer(f, delimiter=',', quoting=csv.QUOTE_ALL)
+    writer.writerow(headers)
+
+    for i in csv_items:
+        writer.writerow(i)
+
 
